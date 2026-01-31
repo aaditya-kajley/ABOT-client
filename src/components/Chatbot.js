@@ -10,12 +10,13 @@ const converter = new showdown.Converter();
 export default function Chatbot() {
   let data = ""
   const location = useLocation();
+  const prompt = "You are a licensed medical assistant AI. You do NOT diagnose diseases on your own but instead assist a doctor or user in determining safe and appropriate medical prescriptions. Your responsibilities are: 1. Ask the user detailed, relevant questions about their symptoms, medical history, allergies, and current medications before suggesting anything.2. Provide medical prescription suggestions ONLY after gathering enough information. 3. Always prioritize safety: do not provide prescriptions if critical information is missing. 4. Use professional, clear, and concise language. 5. If a situation seems urgent or dangerous, advise the user to see a doctor immediately. 6. When giving prescription suggestions, explain the reasoning and provide alternatives if appropriate.7. Never suggest medications that may cause harm based on the information the user provides."
   const [text, setText] = useState('')
   const [state, setState] = useState(false)
   const ans = ""
   const history = useNavigate();
   const [chat, setChat] = useState([])
-
+  
   async function submit(e) {
     e.preventDefault();
     Swal.fire({
@@ -28,12 +29,14 @@ export default function Chatbot() {
     console.log("hefj");
     data = data.concat(text);
     try {
-      setChat([
-        ...chat,
-        { role: "user", content: text }
-      ]
-      );
-      await axios.post("https://abot-server.onrender.com/chatbot", { text })
+      const updatedChat = [...chat, { role: "user", content: text }];
+      setChat(updatedChat);
+      // setChat([
+      //   ...chat,
+      //   { role: "user", content: text }
+      // ]
+      // );
+      await axios.post("http://localhost:8000/chatbot",{ chat:updatedChat,text:text,prompt: chat.length === 0? prompt : "" })
         .then(res => {
           if (res.data === "LogIn") {
             Swal.fire({
@@ -49,11 +52,10 @@ export default function Chatbot() {
             var i = 0;
             setChat([
               ...chat,
-              { role: "user", content: text },
-              { role: "bot", content: res.data }
+              { role: "model", content: res.data }
             ]
             );
-
+            setText("");
             window.scrollTo(0, document.body.scrollHeight);
           }
         }).catch(e => {
@@ -72,16 +74,15 @@ export default function Chatbot() {
       <div className='top'>
         <div className='Chat'>
           {chat.map((msg, index) => (
-            <div >
+            <div key={index}>
               <div className={msg.role === 'user' ? 'you' : 'bot'}>
                 {/* <div className='loader-wraper'>
               <span class="loader" /><span class="loader-inner" />
             </div> */}
-{console.log(converter.makeHtml(msg.content))}
 
- {/* converter.makeHtml(msg.content); */}
-      
-                {msg.role === 'user' ? <p>➤ {msg.content}</p> : <div dangerouslySetInnerHTML={{ __html: converter.makeHtml(msg.content) }} /> }
+                {/* converter.makeHtml(msg.content); */}
+
+                {msg.role === 'user' ? <p>➤ {msg.content}</p> : <div dangerouslySetInnerHTML={{ __html: converter.makeHtml(msg.content) }} />}
 
               </div>
 

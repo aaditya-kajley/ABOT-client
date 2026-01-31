@@ -19,7 +19,7 @@ export default function Signup() {
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("https://abot-server.onrender.com/signup", { name, email, password })
+            await axios.post("http://localhost:8000/signup", { name, email, password })
                 .then(res => {
                     if (res.data === "exist") {
                         Swal.fire({
@@ -38,7 +38,7 @@ export default function Signup() {
                             showConfirmButton: false,
                             timer: 1500
                           });
-                        history("/home", { state: { id: name } })
+                        history("/home")
 
                     }
                 }).catch(e => {

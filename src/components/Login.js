@@ -16,7 +16,7 @@ export default function Login() {
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("https://abot-server.onrender.com/login", { email, password })
+            await axios.post("http://localhost:8000/login", { email, password })
                 .then(res => {
                     if (res.data === "exist") {
                         Swal.fire({
